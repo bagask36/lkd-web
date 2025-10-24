@@ -10,7 +10,7 @@ class LaporanMaintenance extends Model
 {
     use HasFactory;
 
-    protected $table = 'laporan_maintenance'; // Jika nama tabel tidak sesuai konvensi Laravel
+    protected $table = 'laporan_maintenance';
     
     protected $fillable = [
         'nama_alat',

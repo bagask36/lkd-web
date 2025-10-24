@@ -9,7 +9,7 @@ class Instalasi extends Model
 {
     use HasFactory;
     
-    protected $table = 'Instalasi';
+    protected $table = 'instalasi';
     protected $fillable = [
         'nama_alat',
         'merk_alat',
