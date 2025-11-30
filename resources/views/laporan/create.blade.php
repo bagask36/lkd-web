@@ -51,6 +51,13 @@
                                     <i class="ri-tools-line me-2"></i>Informasi Alat
                                 </h5>
                             </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="selectKalibrasi" class="form-label">Pilih Kalibrasi (Nama • Merk • No. Seri)</label>
+                                    <select id="selectKalibrasi" class="form-select" style="width: 100%"></select>
+                                    <input type="hidden" id="kalibrasi_id" name="kalibrasi_id" value="{{ old('kalibrasi_id') }}">
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="nama_alat" class="form-label">
@@ -279,6 +286,10 @@
 @endsection
 
 @push('script')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     function calculateAndDisplay() {
         const nilaiSettingInput = document.getElementById('nilai_setting');
@@ -377,5 +388,38 @@
             });
         }, false);
     })();
+
+    $(function() {
+        $('#selectKalibrasi').select2({
+            placeholder: 'Cari dan pilih kalibrasi...',
+            allowClear: true,
+            ajax: {
+                url: "{{ route('kalibrasi.search') }}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data };
+                },
+                cache: true
+            },
+            minimumInputLength: 1,
+            width: '100%'
+        });
+
+        $('#selectKalibrasi').on('select2:select', function (e) {
+            const data = e.params.data;
+            $('#kalibrasi_id').val(data.id);
+            if (data.nama_alat) $('#nama_alat').val(data.nama_alat);
+            if (data.merk_alat) $('#merk').val(data.merk_alat);
+            if (data.no_seri) $('#no_seri').val(data.no_seri);
+        });
+
+        $('#selectKalibrasi').on('select2:clear', function () {
+            $('#kalibrasi_id').val('');
+        });
+    });
 </script>
 @endpush

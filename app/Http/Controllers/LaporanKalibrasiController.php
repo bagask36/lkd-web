@@ -93,6 +93,7 @@ class LaporanKalibrasiController extends Controller
     {
         // 1. Validasi semua data
         $request->validate([
+            'kalibrasi_id' => 'nullable|exists:kalibrasi,id|unique:laporan_kalibrasis,kalibrasi_id',
             'nama_alat' => 'required',
             'merk' => 'required',
             'no_seri' => 'required',
@@ -143,6 +144,7 @@ class LaporanKalibrasiController extends Controller
 
         // 3. Simpan data laporan ke database
         LaporanKalibrasi::create([
+            'kalibrasi_id' => $request->kalibrasi_id,
             'nama_alat' => $request->nama_alat,
             'merk' => $request->merk,
             'no_seri' => $request->no_seri,

@@ -121,13 +121,14 @@
                             <div class="mb-3">
                                 <label class="form-label fw-semibold text-muted">Nilai Pengukuran</label>
                                 <div class="p-3 bg-light rounded">
-                                    @if($laporan->nilai_pengukuran)
-                                        @foreach(json_decode($laporan->nilai_pengukuran) as $nilai)
-                                            <span class="badge bg-primary me-1 mb-1">{{ number_format($nilai, 10) }}</span>
-                                        @endforeach
-                                    @else
+                                    @php
+                                        $pengukuran = is_array($laporan->nilai_pengukuran) ? $laporan->nilai_pengukuran : ($laporan->nilai_pengukuran ? json_decode($laporan->nilai_pengukuran, true) : []);
+                                    @endphp
+                                    @forelse($pengukuran as $nilai)
+                                        <span class="badge bg-primary me-1 mb-1">{{ number_format($nilai, 10) }}</span>
+                                    @empty
                                         <span class="text-muted">-</span>
-                                    @endif
+                                    @endforelse
                                 </div>
                             </div>
                         </div>

@@ -15,8 +15,23 @@ class Kalibrasi extends Model
         'merk_alat',
         'tipe_alat',
         'tanggal_kalibrasi',
+        'model_tipe',
+        'no_seri',
+        'no_order',
+        'nama_pemilik',
+        'alamat_pemilik',
+        'nama_ruang',
+        'lokasi_kalibrasi',
+        'hasil',
+        'metode_kerja'
+
     ];
     protected $casts = [
         'tanggal_kalibrasi' => 'date',
     ];
+
+    public function laporanKalibrasi()
+    {
+        return $this->hasOne(\App\Models\LaporanKalibrasi::class, 'kalibrasi_id');
+    }
 }

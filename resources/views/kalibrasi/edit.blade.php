@@ -107,6 +107,87 @@
 
                         <div class="row">
                             <div class="col-12">
+                                <h5 class="text-primary mb-3"><i class="ri-tools-line me-2"></i>Informasi Alat Tambahan</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="model_tipe" class="form-label">Model/Tipe</label>
+                                    <input type="text" class="form-control @error('model_tipe') is-invalid @enderror" id="model_tipe" name="model_tipe" value="{{ old('model_tipe', $kalibrasi->model_tipe) }}" placeholder="Masukkan model/tipe">
+                                    @error('model_tipe')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="no_seri" class="form-label">No. Seri</label>
+                                    <input type="text" class="form-control @error('no_seri') is-invalid @enderror" id="no_seri" name="no_seri" value="{{ old('no_seri', $kalibrasi->no_seri) }}" placeholder="Masukkan nomor seri">
+                                    @error('no_seri')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="no_order" class="form-label">No. Order</label>
+                                    <input type="text" class="form-control @error('no_order') is-invalid @enderror" id="no_order" name="no_order" value="{{ old('no_order', $kalibrasi->no_order) }}" placeholder="Masukkan nomor order">
+                                    @error('no_order')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3"><i class="ri-user-3-line me-2"></i>Informasi Pemilik</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nama_pemilik" class="form-label">Nama Pemilik</label>
+                                    <input type="text" class="form-control @error('nama_pemilik') is-invalid @enderror" id="nama_pemilik" name="nama_pemilik" value="{{ old('nama_pemilik', $kalibrasi->nama_pemilik) }}" placeholder="Masukkan nama pemilik">
+                                    @error('nama_pemilik')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nama_ruang" class="form-label">Nama Ruang</label>
+                                    <input type="text" class="form-control @error('nama_ruang') is-invalid @enderror" id="nama_ruang" name="nama_ruang" value="{{ old('nama_ruang', $kalibrasi->nama_ruang) }}" placeholder="Masukkan nama ruang">
+                                    @error('nama_ruang')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="alamat_pemilik" class="form-label">Alamat Pemilik</label>
+                                    <textarea class="form-control @error('alamat_pemilik') is-invalid @enderror" id="alamat_pemilik" name="alamat_pemilik" rows="3" placeholder="Masukkan alamat pemilik">{{ old('alamat_pemilik', $kalibrasi->alamat_pemilik) }}</textarea>
+                                    @error('alamat_pemilik')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3"><i class="ri-map-pin-line me-2"></i>Lokasi & Hasil</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lokasi_kalibrasi" class="form-label">Lokasi Kalibrasi</label>
+                                    <input type="text" class="form-control @error('lokasi_kalibrasi') is-invalid @enderror" id="lokasi_kalibrasi" name="lokasi_kalibrasi" value="{{ old('lokasi_kalibrasi', $kalibrasi->lokasi_kalibrasi) }}" placeholder="Masukkan lokasi kalibrasi">
+                                    @error('lokasi_kalibrasi')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="hasil" class="form-label">Hasil Kalibrasi</label>
+                                    <textarea class="form-control @error('hasil') is-invalid @enderror" id="hasil" name="hasil" rows="3" placeholder="Masukkan hasil kalibrasi">{{ old('hasil', $kalibrasi->hasil) }}</textarea>
+                                    @error('hasil')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="metode_kerja" class="form-label">Metode Kerja</label>
+                                    <textarea class="form-control @error('metode_kerja') is-invalid @enderror" id="metode_kerja" name="metode_kerja" rows="3" placeholder="Masukkan metode kerja">{{ old('metode_kerja', $kalibrasi->metode_kerja) }}</textarea>
+                                    @error('metode_kerja')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
                                 <div class="d-flex gap-2 justify-content-end">
                                     <a href="{{ route('kalibrasi.index') }}" class="btn btn-light">
                                         <i class="ri-arrow-left-line me-1"></i> Kembali

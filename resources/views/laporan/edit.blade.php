@@ -196,18 +196,18 @@
                                     </label>
                                     <div id="pengukuran-container">
                                         @php
-                                            $nilaiPengukuran = json_decode($laporan->nilai_pengukuran);
+                                            $nilaiPengukuran = is_array($laporan->nilai_pengukuran) ? $laporan->nilai_pengukuran : ($laporan->nilai_pengukuran ? json_decode($laporan->nilai_pengukuran, true) : []);
                                         @endphp
-                                        @if(is_array($nilaiPengukuran) || is_object($nilaiPengukuran))
+                                        @if(is_array($nilaiPengukuran))
                                             @foreach($nilaiPengukuran as $nilai)
-                                            <div class="input-group mb-2">
-                                                <input type="number" step="any" class="form-control nilai-pengukuran @error('nilai_pengukuran') is-invalid @enderror" 
-                                                       name="nilai_pengukuran[]" value="{{ $nilai }}" 
-                                                       placeholder="Masukkan nilai pengukuran" required>
-                                                <button class="btn btn-outline-danger remove-pengukuran" type="button">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </div>
+                                                <div class="input-group mb-2">
+                                                    <input type="number" step="any" class="form-control nilai-pengukuran @error('nilai_pengukuran') is-invalid @enderror" 
+                                                           name="nilai_pengukuran[]" value="{{ $nilai }}" 
+                                                           placeholder="Masukkan nilai pengukuran" required>
+                                                    <button class="btn btn-outline-danger remove-pengukuran" type="button">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
                                             @endforeach
                                         @else
                                             <div class="input-group mb-2">

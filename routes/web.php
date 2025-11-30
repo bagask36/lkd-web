@@ -22,6 +22,8 @@ Route::middleware('auth')->group(function () {
     
     // Resource routes
     Route::get('/kalibrasi/export', [KalibrasiController::class, 'export'])->name('kalibrasi.export');
+    Route::get('/kalibrasi/search', [KalibrasiController::class, 'search'])->name('kalibrasi.search');
+    Route::get('/kalibrasi/{kalibrasi}/sertifikat', [KalibrasiController::class, 'sertifikat'])->name('kalibrasi.sertifikat');
     Route::resource('kalibrasi', KalibrasiController::class);
     Route::resource('maintenance', MaintenanceController::class);
     Route::resource('instalasi', InstalasiController::class);

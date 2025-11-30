@@ -70,6 +70,104 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3"><i class="ri-tools-line me-2"></i>Informasi Alat Tambahan</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Merek</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->merek }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Model/Tipe</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->model_tipe }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">No. Seri</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->no_seri }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">No. Order</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->no_order }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3"><i class="ri-user-3-line me-2"></i>Informasi Pemilik</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Nama Pemilik</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->nama_pemilik }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Nama Ruang</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->nama_ruang }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Alamat Pemilik</label>
+                                <div class="p-3 bg-light rounded">
+                                    <p class="mb-0">{{ $kalibrasi->alamat_pemilik }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3"><i class="ri-map-pin-line me-2"></i>Lokasi & Hasil</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Lokasi Kalibrasi</label>
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="mb-0">{{ $kalibrasi->lokasi_kalibrasi }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Hasil Kalibrasi</label>
+                                <div class="p-3 bg-light rounded">
+                                    <p class="mb-0">{{ $kalibrasi->hasil }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-muted">Metode Kerja</label>
+                                <div class="p-3 bg-light rounded">
+                                    <p class="mb-0">{{ $kalibrasi->metode_kerja }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-4">
                                 <label class="form-label fw-semibold text-muted">Dibuat Pada</label>
@@ -102,6 +200,9 @@
                                 </a>
                                 <a href="{{ route('kalibrasi.edit', $kalibrasi->id) }}" class="btn btn-primary">
                                     <i class="ri-edit-line me-1"></i> Edit Data
+                                </a>
+                                <a href="{{ route('kalibrasi.sertifikat', $kalibrasi->id) }}" target="_blank" class="btn btn-success">
+                                    <i class="ri-printer-line me-1"></i> Generate Sertifikat
                                 </a>
                             </div>
                         </div>
