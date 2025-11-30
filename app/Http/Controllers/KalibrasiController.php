@@ -15,6 +15,21 @@ class KalibrasiController extends Controller
     {
         if ($request->ajax()) {
             $kalibrasis = Kalibrasi::query();
+            if ($request->filled('nama_alat')) {
+                $kalibrasis->where('nama_alat', 'like', '%'.$request->get('nama_alat').'%');
+            }
+            if ($request->filled('merk_alat')) {
+                $kalibrasis->where('merk_alat', 'like', '%'.$request->get('merk_alat').'%');
+            }
+            if ($request->filled('tipe_alat')) {
+                $kalibrasis->where('tipe_alat', 'like', '%'.$request->get('tipe_alat').'%');
+            }
+            if ($request->filled('start_date')) {
+                $kalibrasis->whereDate('tanggal_kalibrasi', '>=', $request->get('start_date'));
+            }
+            if ($request->filled('end_date')) {
+                $kalibrasis->whereDate('tanggal_kalibrasi', '<=', $request->get('end_date'));
+            }
             return DataTables::of($kalibrasis)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
@@ -99,5 +114,39 @@ class KalibrasiController extends Controller
         $kalibrasi->delete();
 
         return redirect()->route('kalibrasi.index')->with('success', 'Data kalibrasi berhasil dihapus!');
+    }
+
+    public function export(Request $request)
+    {
+        $query = Kalibrasi::query();
+        if ($request->filled('nama_alat')) {
+            $query->where('nama_alat', 'like', '%'.$request->get('nama_alat').'%');
+        }
+        if ($request->filled('merk_alat')) {
+            $query->where('merk_alat', 'like', '%'.$request->get('merk_alat').'%');
+        }
+        if ($request->filled('tipe_alat')) {
+            $query->where('tipe_alat', 'like', '%'.$request->get('tipe_alat').'%');
+        }
+        if ($request->filled('start_date')) {
+            $query->whereDate('tanggal_kalibrasi', '>=', $request->get('start_date'));
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('tanggal_kalibrasi', '<=', $request->get('end_date'));
+        }
+
+        $filename = 'kalibrasi.csv';
+        return response()->streamDownload(function() use ($query) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['No', 'Nama Alat', 'Merk Alat', 'Tipe Alat', 'Tanggal Kalibrasi']);
+            $no = 0;
+            foreach ($query->orderBy('tanggal_kalibrasi', 'desc')->cursor() as $row) {
+                $tanggal = $row->tanggal_kalibrasi ? $row->tanggal_kalibrasi->format('d-m-Y') : '';
+                fputcsv($handle, [++$no, $row->nama_alat, $row->merk_alat, $row->tipe_alat, $tanggal]);
+            }
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }

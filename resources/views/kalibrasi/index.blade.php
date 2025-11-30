@@ -26,9 +26,14 @@
                         <h4 class="card-title mb-0">
                             <i class="ri-tools-line me-2"></i>Daftar Data Kalibrasi
                         </h4>
-                        <a href="{{ route('kalibrasi.create') }}" class="btn btn-primary">
-                            <i class="ri-add-line me-1"></i> Tambah Data
-                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('kalibrasi.create') }}" class="btn btn-primary">
+                                <i class="ri-add-line me-1"></i> Tambah Data
+                            </a>
+                            <button id="downloadCsv" type="button" class="btn btn-success">
+                                <i class="ri-file-download-line me-1"></i> Unduh CSV
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -48,6 +53,39 @@
                         </div>
                     @endif
 
+                    <div class="mb-3">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Nama Alat</label>
+                                <input type="text" id="filterNamaAlat" class="form-control" placeholder="Cari nama alat">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Merk Alat</label>
+                                <input type="text" id="filterMerkAlat" class="form-control" placeholder="Cari merk">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tipe Alat</label>
+                                <input type="text" id="filterTipeAlat" class="form-control" placeholder="Cari tipe">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Rentang Tanggal</label>
+                                <div class="d-flex gap-2">
+                                    <input type="date" id="filterStart" class="form-control">
+                                    <input type="date" id="filterEnd" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex gap-2 mt-2">
+                                    <button id="applyFilter" type="button" class="btn btn-soft-primary">
+                                        <i class="ri-filter-3-line me-1"></i> Terapkan Filter
+                                    </button>
+                                    <button id="resetFilter" type="button" class="btn btn-light">
+                                        <i class="ri-refresh-line me-1"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table id="kalibrasiTable" class="table table-bordered table-striped table-hover">
                             <thead class="table-light">
@@ -82,10 +120,19 @@
 
 <script>
     $(document).ready(function() {
-        $('#kalibrasiTable').DataTable({
+        const table = $('#kalibrasiTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('kalibrasi.index') }}",
+            ajax: {
+                url: "{{ route('kalibrasi.index') }}",
+                data: function(d) {
+                    d.nama_alat = $('#filterNamaAlat').val();
+                    d.merk_alat = $('#filterMerkAlat').val();
+                    d.tipe_alat = $('#filterTipeAlat').val();
+                    d.start_date = $('#filterStart').val();
+                    d.end_date = $('#filterEnd').val();
+                }
+            },
             columns: [
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center'},
                 {data: 'nama_alat', name: 'nama_alat'},
@@ -121,6 +168,30 @@
                 // Add custom styling to action buttons
                 $('.btn-sm').addClass('me-1 mb-1');
             }
+        });
+
+        $('#applyFilter').on('click', function() {
+            table.draw();
+        });
+
+        $('#resetFilter').on('click', function() {
+            $('#filterNamaAlat').val('');
+            $('#filterMerkAlat').val('');
+            $('#filterTipeAlat').val('');
+            $('#filterStart').val('');
+            $('#filterEnd').val('');
+            table.draw();
+        });
+
+        $('#downloadCsv').on('click', function() {
+            const params = new URLSearchParams({
+                nama_alat: $('#filterNamaAlat').val() || '',
+                merk_alat: $('#filterMerkAlat').val() || '',
+                tipe_alat: $('#filterTipeAlat').val() || '',
+                start_date: $('#filterStart').val() || '',
+                end_date: $('#filterEnd').val() || ''
+            });
+            window.location.href = `{{ route('kalibrasi.export') }}?${params.toString()}`;
         });
     });
 </script>

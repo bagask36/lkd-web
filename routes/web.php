@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Resource routes
+    Route::get('/kalibrasi/export', [KalibrasiController::class, 'export'])->name('kalibrasi.export');
     Route::resource('kalibrasi', KalibrasiController::class);
     Route::resource('maintenance', MaintenanceController::class);
     Route::resource('instalasi', InstalasiController::class);
