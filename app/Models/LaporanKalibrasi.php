@@ -39,6 +39,11 @@ class LaporanKalibrasi extends Model
         'nilai_pengukuran' => 'array'
     ];
 
+    public function sets()
+    {
+        return $this->hasMany(\App\Models\LaporanKalibrasiSet::class, 'laporan_kalibrasi_id');
+    }
+
     public function kalibrasi()
     {
         return $this->belongsTo(\App\Models\Kalibrasi::class);

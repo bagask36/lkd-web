@@ -109,61 +109,61 @@
                                 <i class="ri-calculator-line me-2"></i>Hasil Perhitungan
                             </h5>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold text-muted">Nilai Setting Alat</label>
-                                <div class="p-3 bg-light rounded">
-                                    <h6 class="mb-0">{{ number_format($laporan->nilai_setting, 10) }}</h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label fw-semibold text-muted">Nilai Pengukuran</label>
                                 <div class="p-3 bg-light rounded">
                                     @php
-                                        $pengukuran = is_array($laporan->nilai_pengukuran) ? $laporan->nilai_pengukuran : ($laporan->nilai_pengukuran ? json_decode($laporan->nilai_pengukuran, true) : []);
+                                        $sets = $laporan->sets ?? [];
                                     @endphp
-                                    @forelse($pengukuran as $nilai)
-                                        <span class="badge bg-primary me-1 mb-1">{{ number_format($nilai, 10) }}</span>
-                                    @empty
-                                        <span class="text-muted">-</span>
-                                    @endforelse
+                                    @if($sets && count($sets))
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nilai Setting</th>
+                                                        <th>Pengukuran</th>
+                                                        <th>Rata-rata</th>
+                                                        <th>SD</th>
+                                                        <th>Ua</th>
+                                                        <th>Koreksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach($sets as $s)
+                                                    @php
+                                                        $vals = is_array($s->nilai_pengukuran) ? $s->nilai_pengukuran : ($s->nilai_pengukuran ? json_decode($s->nilai_pengukuran, true) : []);
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ number_format($s->nilai_setting, 10) }}</td>
+                                                        <td>
+                                                            @foreach($vals as $v)
+                                                                <span class="badge bg-primary me-1 mb-1">{{ number_format($v, 10) }}</span>
+                                                            @endforeach
+                                                        </td>
+                                                        <td>{{ $s->rata_rata !== null ? number_format($s->rata_rata, 10) : '-' }}</td>
+                                                        <td>{{ $s->standar_deviasi !== null ? number_format($s->standar_deviasi, 10) : '-' }}</td>
+                                                        <td>{{ $s->u_a_value !== null ? number_format($s->u_a_value, 10) : '-' }}</td>
+                                                        <td>{{ $s->nilai_koreksi !== null ? number_format($s->nilai_koreksi, 10) : '-' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        @php
+                                            $pengukuran = is_array($laporan->nilai_pengukuran) ? $laporan->nilai_pengukuran : ($laporan->nilai_pengukuran ? json_decode($laporan->nilai_pengukuran, true) : []);
+                                        @endphp
+                                        @forelse($pengukuran as $nilai)
+                                            <span class="badge bg-primary me-1 mb-1">{{ number_format($nilai, 10) }}</span>
+                                        @empty
+                                            <span class="text-muted">-</span>
+                                        @endforelse
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold text-muted">Rata-rata</label>
-                                <div class="p-3 bg-light rounded">
-                                    <h6 class="mb-0 text-success">{{ number_format($laporan->rata_rata, 10) }}</h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold text-muted">Standar Deviasi</label>
-                                <div class="p-3 bg-light rounded">
-                                    <h6 class="mb-0 text-info">{{ number_format($laporan->standar_deviasi, 10) }}</h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold text-muted">Nilai Koreksi</label>
-                                <div class="p-3 bg-light rounded">
-                                    <h6 class="mb-0 text-warning">{{ number_format($laporan->nilai_koreksi, 10) }}</h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold text-muted">Ketidakpastian Tipe A (Ua)</label>
-                                <div class="p-3 bg-light rounded">
-                                    <h6 class="mb-0 text-danger">{{ number_format($laporan->u_a_value, 10) }}</h6>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
 
                     <!-- Hasil Kalibrasi -->

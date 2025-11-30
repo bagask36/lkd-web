@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Kalibrasi;
+use App\Models\LaporanKalibrasi;
 use Yajra\DataTables\Facades\DataTables;
 use setasign\Fpdi\Fpdi;
 
@@ -332,6 +333,107 @@ class KalibrasiController extends Controller
         $signaturePath = public_path('assets/back/tandatangan.png');
         if (file_exists($signaturePath)) {
             $pdf->Image($signaturePath, $xRightLabel + 5, $yRightBlock + 31, 50);
+        }
+
+        // Halaman 2: Laporan Hasil Kalibrasi (tabel 3 kolom)
+        $pdf->AddPage('P', 'A4');
+        $tpl2 = null;
+        try {
+            $tpl2 = $pdf->importPage(2);
+        } catch (\Throwable $e) {
+            $tpl2 = null;
+        }
+        if ($tpl2) {
+            $pdf->useTemplate($tpl2, 0, 0, 210);
+        }
+
+        $laporan = LaporanKalibrasi::with('sets')
+            ->where('kalibrasi_id', $kalibrasi->id)
+            ->first();
+
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetXY(5, 30);
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(210, 8, 'LAPORAN HASIL KALIBRASI', 0, 1, 'C');
+
+        $x = 20; $y = 50; $w1 = 60; $w2 = 60; $w3 = 60; $h = 10;
+        $pdf->SetLineWidth(0.3);
+        $pdf->SetDrawColor(120,120,120);
+        $pdf->SetFillColor(240,240,240);
+        // Header cells
+        $pdf->SetXY($x, $y);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell($w1, $h, '', 1, 0, 'C', true);
+        $pdf->Cell($w2, $h, '', 1, 0, 'C', true);
+        $pdf->Cell($w3, $h, '', 1, 1, 'C', true);
+        // Header titles and subtitle (italic, muted)
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetXY($x, $y + 2);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell($w1, 4, 'Nilai Setting', 0, 0, 'C');
+        $pdf->Cell($w2, 4, 'Rata-rata', 0, 0, 'C');
+        $pdf->Cell($w3, 4, 'Nilai Koreksi', 0, 1, 'C');
+        $pdf->SetTextColor(120,120,120);
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->SetXY($x, $y + 6);
+        $pdf->Cell($w1, 4, 'Nominal Values', 0, 0, 'C');
+        $pdf->Cell($w2, 4, 'Actual Standard', 0, 0, 'C');
+        $pdf->Cell($w3, 4, 'Correction', 0, 1, 'C');
+        $pdf->SetTextColor(0,0,0);
+
+        if ($laporan && $laporan->sets && count($laporan->sets)) {
+            foreach ($laporan->sets as $s) {
+                $y += $h;
+                $pdf->SetXY($x, $y);
+                $pdf->SetFont('Arial', '', 10);
+                $pdf->Cell($w1, $h, number_format($s->nilai_setting, 2), 1, 0, 'C');
+                $pdf->Cell($w2, $h, $s->rata_rata !== null ? number_format($s->rata_rata, 2) : '-', 1, 0, 'C');
+                $pdf->Cell($w3, $h, $s->nilai_koreksi !== null ? number_format($s->nilai_koreksi, 2) : '-', 1, 1, 'C');
+            }
+        } else {
+            $y += $h;
+            $pdf->SetXY($x, $y);
+            $pdf->Cell($w1 + $w2 + $w3, $h, 'Belum ada data laporan kalibrasi untuk alat ini', 1, 1, 'C');
+        }
+
+        // Footer on page 2: Issued date and signature again
+        $issuedStr2 = \Carbon\Carbon::now()->format('d F Y');
+        $yFooter = min($y + 20, 230);
+        $xRightLabel2 = 130; $xRightValue2 = 165;
+        $pdf->SetXY($xRightLabel2, $yFooter);
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->Write(5, 'Diterbitkan Tanggal');
+        $pdf->SetXY($xRightLabel2, $yFooter + 5);
+        $pdf->SetTextColor(120, 120, 120);
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->Write(5, 'Issued Date');
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetXY($xRightValue2, $yFooter);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Write(5, ': '.$issuedStr2);
+
+        $pdf->SetXY($xRightLabel2, $yFooter + 18);
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->Write(5, 'Tanda Tangan');
+        $pdf->SetXY($xRightLabel2, $yFooter + 24);
+        $pdf->SetTextColor(120, 120, 120);
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->Write(5, 'Signature');
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Rect($xRightLabel2, $yFooter + 30, 60, 25);
+        $pdf->SetXY($xRightLabel2 + 2, $yFooter + 32);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Write(5, 'Dari '.(config('app.name') ?: ''));
+        $pdf->SetXY($xRightLabel2 + 2, $yFooter + 38);
+        $pdf->SetTextColor(120, 120, 120);
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->Write(5, 'From '.(config('app.name') ?: ''));
+        $pdf->SetTextColor(0, 0, 0);
+
+        $signaturePath2 = public_path('assets/back/tandatangan.png');
+        if (file_exists($signaturePath2)) {
+            $pdf->Image($signaturePath2, $xRightLabel2 + 5, $yFooter + 31, 50);
         }
 
         return response($pdf->Output('S'))

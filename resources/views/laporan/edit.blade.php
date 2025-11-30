@@ -167,88 +167,126 @@
                             </div>
                         </div>
 
-                        <!-- Data Pengukuran -->
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-primary mb-3">
-                                    <i class="ri-calculator-line me-2"></i>Data Pengukuran
+                                    <i class="ri-calculator-line me-2"></i>Data Pengukuran (Maks. 5 Set)
                                 </h5>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="nilai_setting" class="form-label">
-                                        Nilai Setting Alat <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" step="any" class="form-control @error('nilai_setting') is-invalid @enderror" 
-                                           id="nilai_setting" name="nilai_setting" 
-                                           value="{{ old('nilai_setting', $laporan->nilai_setting) }}" 
-                                           placeholder="Masukkan nilai setting alat" required>
-                                    @error('nilai_setting')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Nilai Hasil Pengukuran <span class="text-danger">*</span>
-                                        <small class="text-muted">(Ulangi beberapa kali)</small>
-                                    </label>
-                                    <div id="pengukuran-container">
-                                        @php
-                                            $nilaiPengukuran = is_array($laporan->nilai_pengukuran) ? $laporan->nilai_pengukuran : ($laporan->nilai_pengukuran ? json_decode($laporan->nilai_pengukuran, true) : []);
-                                        @endphp
-                                        @if(is_array($nilaiPengukuran))
-                                            @foreach($nilaiPengukuran as $nilai)
-                                                <div class="input-group mb-2">
-                                                    <input type="number" step="any" class="form-control nilai-pengukuran @error('nilai_pengukuran') is-invalid @enderror" 
-                                                           name="nilai_pengukuran[]" value="{{ $nilai }}" 
-                                                           placeholder="Masukkan nilai pengukuran" required>
-                                                    <button class="btn btn-outline-danger remove-pengukuran" type="button">
-                                                        <i class="ri-delete-bin-line"></i>
-                                                    </button>
+                            <div id="sets-container" class="col-12">
+                                @php
+                                    $sets = $laporan->sets ?? [];
+                                @endphp
+                                @if($sets && count($sets))
+                                    @foreach($sets as $i => $s)
+                                        @php $vals = is_array($s->nilai_pengukuran) ? $s->nilai_pengukuran : ($s->nilai_pengukuran ? json_decode($s->nilai_pengukuran, true) : []); @endphp
+                                        <div class="card mb-3 set-card" data-index="{{ $i }}">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Nilai Setting Alat <span class="text-danger">*</span></label>
+                                                            <input type="number" step="any" class="form-control nilai-setting-input" name="nilai_sets[{{ $i }}][setting]" value="{{ $s->nilai_setting }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Nilai Hasil Pengukuran <span class="text-danger">*</span></label>
+                                                            <div class="pengukuran-list">
+                                                                @forelse($vals as $v)
+                                                                    <div class="input-group mb-2">
+                                                                        <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[{{ $i }}][pengukuran][]" value="{{ $v }}" required>
+                                                                        <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+                                                                    </div>
+                                                                @empty
+                                                                    <div class="input-group mb-2">
+                                                                        <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[{{ $i }}][pengukuran][]" required>
+                                                                        <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+                                                                    </div>
+                                                                    <div class="input-group mb-2">
+                                                                        <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[{{ $i }}][pengukuran][]" required>
+                                                                        <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+                                                                    </div>
+                                                                @endforelse
+                                                            </div>
+                                                            <button class="btn btn-outline-secondary btn-sm add-pengukuran" type="button"><i class="ri-add-line me-1"></i> Tambah Pengukuran</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            @endforeach
-                                        @else
-                                            <div class="input-group mb-2">
-                                                <input type="number" step="any" class="form-control nilai-pengukuran" 
-                                                       name="nilai_pengukuran[]" placeholder="Masukkan nilai pengukuran" required>
-                                                <button class="btn btn-outline-danger remove-pengukuran" type="button">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
+                                                <div class="mt-2 set-results">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>Rata-rata:</strong> <span class="set-display-rata-rata text-success">{{ $s->rata_rata !== null ? number_format($s->rata_rata, 10) : '...' }}</span></p>
+                                                            <p><strong>Standar Deviasi:</strong> <span class="set-display-standar-deviasi text-info">{{ $s->standar_deviasi !== null ? number_format($s->standar_deviasi, 10) : '...' }}</span></p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Nilai Koreksi:</strong> <span class="set-display-nilai-koreksi text-warning">{{ $s->nilai_koreksi !== null ? number_format($s->nilai_koreksi, 10) : '...' }}</span></p>
+                                                            <p><strong>Ketidakpastian Tipe A (Ua):</strong> <span class="set-display-ua text-danger">{{ $s->u_a_value !== null ? number_format($s->u_a_value, 10) : '...' }}</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-end">
+                                                    <button class="btn btn-outline-danger btn-sm remove-set" type="button"><i class="ri-close-line me-1"></i> Hapus Set</button>
+                                                </div>
                                             </div>
-                                        @endif
-                                    </div>
-                                    <button id="add-pengukuran" class="btn btn-outline-secondary btn-sm" type="button">
-                                        <i class="ri-add-line me-1"></i> Tambah Pengukuran
-                                    </button>
-                                    @error('nilai_pengukuran')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hasil Perhitungan Live -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h5 class="card-title text-primary">
-                                            <i class="ri-calculator-line me-2"></i>Hasil Perhitungan Live
-                                        </h5>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p><strong>Rata-rata:</strong> <span id="display-rata-rata" class="text-success">{{ number_format($laporan->rata_rata, 10) }}</span></p>
-                                                <p><strong>Standar Deviasi:</strong> <span id="display-standar-deviasi" class="text-info">{{ number_format($laporan->standar_deviasi, 10) }}</span></p>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    @php $vals = is_array($laporan->nilai_pengukuran) ? $laporan->nilai_pengukuran : ($laporan->nilai_pengukuran ? json_decode($laporan->nilai_pengukuran, true) : []); @endphp
+                                    <div class="card mb-3 set-card" data-index="0">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Nilai Setting Alat <span class="text-danger">*</span></label>
+                                                        <input type="number" step="any" class="form-control nilai-setting-input" name="nilai_sets[0][setting]" value="{{ $laporan->nilai_setting }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Nilai Hasil Pengukuran <span class="text-danger">*</span></label>
+                                                        <div class="pengukuran-list">
+                                                            @forelse($vals as $v)
+                                                                <div class="input-group mb-2">
+                                                                    <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[0][pengukuran][]" value="{{ $v }}" required>
+                                                                    <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+                                                                </div>
+                                                            @empty
+                                                                <div class="input-group mb-2">
+                                                                    <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[0][pengukuran][]" required>
+                                                                    <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+                                                                </div>
+                                                                <div class="input-group mb-2">
+                                                                    <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[0][pengukuran][]" required>
+                                                                    <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+                                                                </div>
+                                                            @endforelse
+                                                        </div>
+                                                        <button class="btn btn-outline-secondary btn-sm add-pengukuran" type="button"><i class="ri-add-line me-1"></i> Tambah Pengukuran</button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <p><strong>Nilai Koreksi:</strong> <span id="display-nilai-koreksi" class="text-warning">{{ number_format($laporan->nilai_koreksi, 10) }}</span></p>
-                                                <p><strong>Ketidakpastian Tipe A (Ua):</strong> <span id="display-ua" class="text-danger">{{ number_format($laporan->u_a_value, 10) }}</span></p>
+                                            <div class="mt-2 set-results">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p><strong>Rata-rata:</strong> <span class="set-display-rata-rata text-success">{{ $laporan->rata_rata !== null ? number_format($laporan->rata_rata, 10) : '...' }}</span></p>
+                                                        <p><strong>Standar Deviasi:</strong> <span class="set-display-standar-deviasi text-info">{{ $laporan->standar_deviasi !== null ? number_format($laporan->standar_deviasi, 10) : '...' }}</span></p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Nilai Koreksi:</strong> <span class="set-display-nilai-koreksi text-warning">{{ $laporan->nilai_koreksi !== null ? number_format($laporan->nilai_koreksi, 10) : '...' }}</span></p>
+                                                        <p><strong>Ketidakpastian Tipe A (Ua):</strong> <span class="set-display-ua text-danger">{{ $laporan->u_a_value !== null ? number_format($laporan->u_a_value, 10) : '...' }}</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button class="btn btn-outline-danger btn-sm remove-set" type="button"><i class="ri-close-line me-1"></i> Hapus Set</button>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <button id="add-set" class="btn btn-outline-primary btn-sm" type="button"><i class="ri-add-line me-1"></i> Tambah Set</button>
                             </div>
                         </div>
 
@@ -301,86 +339,142 @@
 
 @push('script')
 <script>
-    function calculateAndDisplay() {
-        const nilaiSettingInput = document.getElementById('nilai_setting');
-        const pengukuranInputs = document.querySelectorAll('.nilai-pengukuran');
-        
-        const nilaiSetting = parseFloat(nilaiSettingInput.value);
-        const nilaiPengukuran = Array.from(pengukuranInputs).map(input => parseFloat(input.value));
-        
-        const rataRataDisplay = document.getElementById('display-rata-rata');
-        const standarDeviasiDisplay = document.getElementById('display-standar-deviasi');
-        const nilaiKoreksiDisplay = document.getElementById('display-nilai-koreksi');
-        const uaDisplay = document.getElementById('display-ua');
-
-        // Cek jika ada input yang tidak valid atau kurang dari 2 pengukuran
-        if (isNaN(nilaiSetting) || nilaiPengukuran.some(isNaN) || nilaiPengukuran.length < 2) {
-            rataRataDisplay.innerText = '...';
-            standarDeviasiDisplay.innerText = '...';
-            nilaiKoreksiDisplay.innerText = '...';
-            uaDisplay.innerText = '...';
-            return;
+    function addSet(index) {
+        const card = document.createElement('div');
+        card.className = 'card mb-3 set-card';
+        card.dataset.index = index;
+        card.innerHTML = `
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Nilai Setting Alat <span class="text-danger">*</span></label>
+                            <input type="number" step="any" class="form-control nilai-setting-input" name="nilai_sets[${index}][setting]" required>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label">Nilai Hasil Pengukuran <span class="text-danger">*</span></label>
+                            <div class="pengukuran-list"></div>
+                            <button class="btn btn-outline-secondary btn-sm add-pengukuran" type="button"><i class="ri-add-line me-1"></i> Tambah Pengukuran</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 set-results d-none">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Rata-rata:</strong> <span class="set-display-rata-rata text-success">...</span></p>
+                            <p><strong>Standar Deviasi:</strong> <span class="set-display-standar-deviasi text-info">...</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Nilai Koreksi:</strong> <span class="set-display-nilai-koreksi text-warning">...</span></p>
+                            <p><strong>Ketidakpastian Tipe A (Ua):</strong> <span class="set-display-ua text-danger">...</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-outline-danger btn-sm remove-set" type="button"><i class="ri-close-line me-1"></i> Hapus Set</button>
+                </div>
+            </div>
+        `;
+        const list = card.querySelector('.pengukuran-list');
+        for (let i = 0; i < 2; i++) {
+            const group = document.createElement('div');
+            group.className = 'input-group mb-2';
+            group.innerHTML = `
+                <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[${index}][pengukuran][]" required>
+                <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+            `;
+            list.appendChild(group);
         }
-
-        // Hitung Rata-rata
-        const n = nilaiPengukuran.length;
-        const rataRata = nilaiPengukuran.reduce((sum, current) => sum + current, 0) / n;
-        
-        // Hitung Standar Deviasi
-        let jumlahKuadratSelisih = 0;
-        for (let i = 0; i < n; i++) {
-            jumlahKuadratSelisih += Math.pow(nilaiPengukuran[i] - rataRata, 2);
-        }
-        const standarDeviasi = Math.sqrt(jumlahKuadratSelisih / (n - 1));
-
-        // Hitung Ketidakpastian Tipe A (Ua)
-        const uaValue = standarDeviasi / Math.sqrt(n);
-
-        // Hitung Nilai Koreksi
-        const nilaiKoreksi = rataRata - nilaiSetting;
-
-        // Tampilkan hasil dengan 10 angka di belakang koma
-        rataRataDisplay.innerText = rataRata.toFixed(10);
-        standarDeviasiDisplay.innerText = standarDeviasi.toFixed(10);
-        nilaiKoreksiDisplay.innerText = nilaiKoreksi.toFixed(10);
-        uaDisplay.innerText = uaValue.toFixed(10);
+        document.getElementById('sets-container').appendChild(card);
+        computeSet(card);
     }
 
-    // Tambah event listener untuk setiap input
-    document.getElementById('nilai_setting').addEventListener('input', calculateAndDisplay);
-    document.addEventListener('input', function (e) {
-        if (e.target.classList.contains('nilai-pengukuran')) {
-            calculateAndDisplay();
-        }
+    document.getElementById('add-set').addEventListener('click', function () {
+        const container = document.getElementById('sets-container');
+        const count = container.querySelectorAll('.set-card').length;
+        if (count >= 5) return;
+        addSet(count);
     });
 
-    // Tambah field pengukuran baru
-    document.getElementById('add-pengukuran').addEventListener('click', function () {
-        const container = document.getElementById('pengukuran-container');
-        const inputGroup = document.createElement('div');
-        inputGroup.className = 'input-group mb-2';
-        inputGroup.innerHTML = `
-            <input type="number" step="any" class="form-control nilai-pengukuran" name="nilai_pengukuran[]" placeholder="Masukkan nilai pengukuran" required>
-            <button class="btn btn-outline-danger remove-pengukuran" type="button">
-                <i class="ri-delete-bin-line"></i>
-            </button>
-        `;
-        container.appendChild(inputGroup);
-        calculateAndDisplay();
-    });
-
-    // Hapus field pengukuran
     document.addEventListener('click', function (e) {
-        if (e.target && e.target.classList.contains('remove-pengukuran')) {
-            const inputGroups = document.querySelectorAll('#pengukuran-container .input-group');
-            if (inputGroups.length > 1) {
-                e.target.closest('.input-group').remove();
-                calculateAndDisplay();
-            } else {
-                alert('Minimal harus ada dua field pengukuran untuk perhitungan.');
-            }
+        if (e.target.closest('.add-pengukuran')) {
+            const card = e.target.closest('.set-card');
+            const index = card.dataset.index;
+            const list = card.querySelector('.pengukuran-list');
+            const group = document.createElement('div');
+            group.className = 'input-group mb-2';
+            group.innerHTML = `
+                <input type="number" step="any" class="form-control nilai-pengukuran-input" name="nilai_sets[${index}][pengukuran][]" required>
+                <button class="btn btn-outline-danger remove-pengukuran" type="button"><i class="ri-delete-bin-line"></i></button>
+            `;
+            list.appendChild(group);
+            computeSet(card);
+        }
+        if (e.target.closest('.remove-pengukuran')) {
+            const group = e.target.closest('.input-group');
+            if (group) group.remove();
+            const card = e.target.closest('.set-card');
+            computeSet(card);
+        }
+        if (e.target.closest('.remove-set')) {
+            const card = e.target.closest('.set-card');
+            card.remove();
+            const cards = document.querySelectorAll('.set-card');
+            cards.forEach((c, i) => {
+                c.dataset.index = i;
+                c.querySelector('.nilai-setting-input').setAttribute('name', `nilai_sets[${i}][setting]`);
+                c.querySelectorAll('.nilai-pengukuran-input').forEach(inp => {
+                    inp.setAttribute('name', `nilai_sets[${i}][pengukuran][]`);
+                });
+            });
         }
     });
+
+    document.addEventListener('input', function (e) {
+        if (e.target.classList.contains('nilai-setting-input') || e.target.classList.contains('nilai-pengukuran-input')) {
+            const card = e.target.closest('.set-card');
+            computeSet(card);
+        }
+    });
+
+    function computeSet(card) {
+        if (!card) return;
+        const settingInput = card.querySelector('.nilai-setting-input');
+        const measureInputs = Array.from(card.querySelectorAll('.nilai-pengukuran-input'));
+        const setting = parseFloat(settingInput.value);
+        const measures = measureInputs.map(inp => parseFloat(inp.value)).filter(v => !isNaN(v));
+        const resultsBox = card.querySelector('.set-results');
+        const hasAnyInput = (settingInput.value && settingInput.value !== '') || measureInputs.some(inp => inp.value && inp.value !== '');
+        if (resultsBox) {
+            if (hasAnyInput) { resultsBox.classList.remove('d-none'); } else { resultsBox.classList.add('d-none'); }
+        }
+        const rataEl = card.querySelector('.set-display-rata-rata');
+        const sdEl = card.querySelector('.set-display-standar-deviasi');
+        const koreksiEl = card.querySelector('.set-display-nilai-koreksi');
+        const uaEl = card.querySelector('.set-display-ua');
+        if (isNaN(setting) || measures.length < 2 || measures.length !== measureInputs.length) {
+            rataEl.textContent = '...';
+            sdEl.textContent = '...';
+            koreksiEl.textContent = '...';
+            uaEl.textContent = '...';
+            return;
+        }
+        const n = measures.length;
+        const mean = measures.reduce((sum, v) => sum + v, 0) / n;
+        let sumSq = 0;
+        for (let i = 0; i < n; i++) sumSq += Math.pow(measures[i] - mean, 2);
+        const sd = Math.sqrt(sumSq / (n - 1));
+        const ua = sd / Math.sqrt(n);
+        const koreksi = mean - setting;
+        rataEl.textContent = mean.toFixed(10);
+        sdEl.textContent = sd.toFixed(10);
+        koreksiEl.textContent = koreksi.toFixed(10);
+        uaEl.textContent = ua.toFixed(10);
+    }
+
+    document.querySelectorAll('.set-card').forEach(card => computeSet(card));
 
     // Bootstrap form validation
     (function() {

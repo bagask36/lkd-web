@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LaporanKalibrasi;
+use App\Models\LaporanKalibrasiSet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
@@ -101,9 +102,10 @@ class LaporanKalibrasiController extends Controller
             'tgl_next_kalibrasi' => 'required|date',
             'hasil' => 'required',
             'teknisi' => 'required',
-            'nilai_setting' => 'required|numeric', // Validasi nilai setting
-            'nilai_pengukuran' => 'required|array|min:2',
-            'nilai_pengukuran.*' => 'required|numeric',
+            'nilai_sets' => 'nullable|array|max:5',
+            'nilai_sets.*.setting' => 'required|numeric',
+            'nilai_sets.*.pengukuran' => 'required|array|min:2',
+            'nilai_sets.*.pengukuran.*' => 'required|numeric',
             'file_kalibrasi' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
         ]);
 
@@ -117,33 +119,16 @@ class LaporanKalibrasiController extends Controller
         }
 
         // Ambil nilai-nilai dari input
-        $nilaiSetting = $request->input('nilai_setting');
-        $nilaiPengukuran = $request->input('nilai_pengukuran');
+        $nilaiSets = $request->input('nilai_sets');
 
         // Inisialisasi variabel untuk perhitungan
-        $rataRata = 0;
-        $standarDeviasi = 0;
-        $uAValue = 0;
-        $nilaiKoreksi = 0;
-
-        if (count($nilaiPengukuran) > 1) {
-            $n = count($nilaiPengukuran);
-            $rataRata = array_sum($nilaiPengukuran) / $n;
-            
-            $jumlahKuadratSelisih = 0;
-            foreach ($nilaiPengukuran as $nilai) {
-                $jumlahKuadratSelisih += pow($nilai - $rataRata, 2);
-            }
-
-            $standarDeviasi = sqrt($jumlahKuadratSelisih / ($n - 1));
-            $uAValue = $standarDeviasi / sqrt($n);
+        $primarySet = null;
+        if (is_array($nilaiSets) && count($nilaiSets) > 0) {
+            $primarySet = $nilaiSets[0];
         }
-        
-        // Hitung nilai koreksi berdasarkan Rata-rata dan Nilai Setting
-        $nilaiKoreksi = $rataRata - $nilaiSetting;
 
         // 3. Simpan data laporan ke database
-        LaporanKalibrasi::create([
+        $laporan = LaporanKalibrasi::create([
             'kalibrasi_id' => $request->kalibrasi_id,
             'nama_alat' => $request->nama_alat,
             'merk' => $request->merk,
@@ -153,13 +138,36 @@ class LaporanKalibrasiController extends Controller
             'hasil' => $request->hasil,
             'teknisi' => $request->teknisi,
             'file_path' => $filePath,
-            'nilai_setting' => $nilaiSetting,
-            'nilai_pengukuran' => json_encode($nilaiPengukuran), // Simpan array sebagai JSON
-            'u_a_value' => $uAValue,
-            'rata_rata' => $rataRata,
-            'standar_deviasi' => $standarDeviasi,
-            'nilai_koreksi' => $nilaiKoreksi,
+            'nilai_setting' => $primarySet ? $primarySet['setting'] : null,
+            'nilai_pengukuran' => $primarySet ? json_encode($primarySet['pengukuran']) : null,
+            'u_a_value' => null,
+            'rata_rata' => null,
+            'standar_deviasi' => null,
+            'nilai_koreksi' => null,
         ]);
+
+        if (is_array($nilaiSets)) {
+            foreach ($nilaiSets as $set) {
+                $setting = $set['setting'];
+                $pengukuran = $set['pengukuran'];
+                $n = count($pengukuran);
+                $rata = $n ? array_sum($pengukuran) / $n : 0;
+                $sumSq = 0;
+                foreach ($pengukuran as $v) { $sumSq += pow($v - $rata, 2); }
+                $sd = $n > 1 ? sqrt($sumSq / ($n - 1)) : 0;
+                $ua = $n > 0 ? $sd / sqrt($n) : 0;
+                $koreksi = $rata - $setting;
+                LaporanKalibrasiSet::create([
+                    'laporan_kalibrasi_id' => $laporan->id,
+                    'nilai_setting' => $setting,
+                    'nilai_pengukuran' => json_encode($pengukuran),
+                    'rata_rata' => $rata,
+                    'standar_deviasi' => $sd,
+                    'u_a_value' => $ua,
+                    'nilai_koreksi' => $koreksi,
+                ]);
+            }
+        }
 
         return redirect()->route('laporan.index')->with('success', 'Laporan berhasil ditambahkan');
     }
@@ -191,7 +199,69 @@ class LaporanKalibrasiController extends Controller
      */
     public function update(Request $request, LaporanKalibrasi $laporan)
     {
-        $laporan->update($request->all());
+        $request->validate([
+            'nama_alat' => 'required',
+            'merk' => 'required',
+            'no_seri' => 'required',
+            'tgl_kalibrasi' => 'required|date',
+            'tgl_next_kalibrasi' => 'required|date',
+            'hasil' => 'required',
+            'teknisi' => 'required',
+            'nilai_sets' => 'nullable|array|max:5',
+            'nilai_sets.*.setting' => 'required|numeric',
+            'nilai_sets.*.pengukuran' => 'required|array|min:2',
+            'nilai_sets.*.pengukuran.*' => 'required|numeric',
+            'file_kalibrasi' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
+        ]);
+
+        $filePath = $laporan->file_path;
+        if ($request->hasFile('file_kalibrasi')) {
+            $file = $request->file('file_kalibrasi');
+            $filename = 'laporan_'.time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('uploads/laporan'), $filename);
+            $filePath = 'uploads/laporan/'.$filename;
+        }
+
+        $nilaiSets = $request->input('nilai_sets');
+        $primarySet = (is_array($nilaiSets) && count($nilaiSets) > 0) ? $nilaiSets[0] : null;
+
+        $laporan->update([
+            'nama_alat' => $request->nama_alat,
+            'merk' => $request->merk,
+            'no_seri' => $request->no_seri,
+            'tgl_kalibrasi' => $request->tgl_kalibrasi,
+            'tgl_next_kalibrasi' => $request->tgl_next_kalibrasi,
+            'hasil' => $request->hasil,
+            'teknisi' => $request->teknisi,
+            'file_path' => $filePath,
+            'nilai_setting' => $primarySet ? $primarySet['setting'] : null,
+            'nilai_pengukuran' => $primarySet ? json_encode($primarySet['pengukuran']) : null,
+        ]);
+
+        // Replace existing sets with new ones
+        $laporan->sets()->delete();
+        if (is_array($nilaiSets)) {
+            foreach ($nilaiSets as $set) {
+                $setting = $set['setting'];
+                $pengukuran = $set['pengukuran'];
+                $n = count($pengukuran);
+                $rata = $n ? array_sum($pengukuran) / $n : 0;
+                $sumSq = 0;
+                foreach ($pengukuran as $v) { $sumSq += pow($v - $rata, 2); }
+                $sd = $n > 1 ? sqrt($sumSq / ($n - 1)) : 0;
+                $ua = $n > 0 ? $sd / sqrt($n) : 0;
+                $koreksi = $rata - $setting;
+                $laporan->sets()->create([
+                    'nilai_setting' => $setting,
+                    'nilai_pengukuran' => json_encode($pengukuran),
+                    'rata_rata' => $rata,
+                    'standar_deviasi' => $sd,
+                    'u_a_value' => $ua,
+                    'nilai_koreksi' => $koreksi,
+                ]);
+            }
+        }
+
         return redirect()->route('laporan.index')->with('success', 'Laporan berhasil diperbarui');
     }
 
