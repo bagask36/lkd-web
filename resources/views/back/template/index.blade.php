@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="enable" data-theme="corporate" data-theme-colors="default">
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="enable" data-theme="sass" data-theme-colors="default">
  
 <head>
  
