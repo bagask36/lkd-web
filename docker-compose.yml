@@ -1,3 +1,4 @@
+# Path .env: default .env (relatif ke project). Di server: /var/www/myapp/lkd-web/.env
 services:
   app:
     build:
@@ -7,7 +8,7 @@ services:
     image: tafta-app:latest
     container_name: tafta-app
     restart: unless-stopped
-    env_file: .env
+    env_file: ${ENV_FILE:-.env}
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
@@ -43,7 +44,7 @@ services:
     image: mysql:8.0
     container_name: tafta-mysql
     restart: unless-stopped
-    env_file: .env
+    env_file: ${ENV_FILE:-.env}
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-tafta}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
