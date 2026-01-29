@@ -28,9 +28,9 @@ services:
     image: nginx:alpine
     container_name: tafta-nginx
     restart: unless-stopped
-    # Port host:container — default 8080 (80 & 81 sering dipakai nginx-proxy-manager)
+    # WAJIB: set APP_PORT=8081 di .env (bukan 80). 8080 sering dipakai app lain.
     ports:
-      - "${APP_PORT:-8080}:80"
+      - "${APP_PORT:-8081}:80"
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - public_assets:/var/www/html/public:ro

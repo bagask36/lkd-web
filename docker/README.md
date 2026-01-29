@@ -6,7 +6,8 @@
    ```bash
    cp .env.production.example .env
    ```
-2. Edit `.env`: set `APP_KEY`, `DB_PASSWORD`, `APP_URL`.
+2. Edit `.env`: set `APP_KEY`, `DB_PASSWORD`, `APP_URL`, dan **APP_PORT**.
+   - Wajib set port yang belum dipakai, mis. `APP_PORT=8081` (80/81=NPM, 8080=portofolio)
 
 3. Generate APP_KEY jika belum:
    ```bash
@@ -38,5 +39,11 @@ Jalankan worker di container terpisah atau gunakan supervisor di dalam image.
 
 ## Akses
 
-- Aplikasi: http://localhost (atau port di `APP_PORT`)
-- MySQL: localhost:3306 (user/password dari `.env`)
+- Aplikasi: http://localhost:8081 (atau port di `APP_PORT`)
+- MySQL: localhost:3307 (user/password dari `.env`)
+
+## Troubleshooting
+
+**"Bind for 0.0.0.0:80 failed: port is already allocated"**
+- Di server, edit `.env`: pastikan ada `APP_PORT=8081` (bukan 80). Port 8080 mungkin sudah dipakai portofolio.
+- Lalu: `docker compose down` → `docker compose up -d`.
