@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE & OS
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Dependencies (reinstalled in container)
+node_modules
+vendor
+
+# Environment (inject at runtime)
+.env
+.env.*
+!.env.example
+
+# Build & dev
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.vite
+
+# Tests & docs
+tests
+phpunit.xml
+.phpunit.result.cache
+*.md
+!README.md
+
+# Docker (avoid recursive copy)
+Dockerfile*
+docker-compose*
+.docker
+
+# Misc
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
