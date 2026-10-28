@@ -13,6 +13,40 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+use Illuminate\Support\Facades\Artisan;
+Route::get('/clear', function() {
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    return "Cache cleared!";
+});
+Route::get('/migrate', function () {
+    try {
+        // Menjalankan perintah: php artisan migrate --force
+        Artisan::call('migrate', ['--force' => true]);
+        
+        // Mengambil teks output/hasil dari command
+        $output = Artisan::output();
+        
+        return response('<pre>' . e($output) . '</pre>', 200);
+    } catch (\Exception $e) {
+        // Menangkap error jika gagal
+        return response('<pre>Error: ' . e($e->getMessage()) . '</pre>', 500);
+    }
+});
+
+Route::get('/storage-link', function () {
+    try {
+        // Menjalankan perintah: php artisan storage:link
+        Artisan::call('storage:link');
+        
+        $output = Artisan::output();
+        
+        return response('<pre>' . e($output) . '</pre>', 200);
+    } catch (\Exception $e) {
+        return response('<pre>Error: ' . e($e->getMessage()) . '</pre>', 500);
+    }
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
